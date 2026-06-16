@@ -192,7 +192,7 @@ function getLevelText(level) {
     'HIGH': '高度擁擠',
     'MEDIUM': '中度擁擠',
     'LOW': '低度擁擠',
-    'NONE': '無資料'
+    'NONE': '正常'
   };
   return texts[level] || '未知';
 }
