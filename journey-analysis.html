@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IBM Bob Workshop - 交通卡使用分析系統挑戰</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/workshop-theme.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎟️ 交通卡使用分析系統</h1>
+      <p class="subtitle">IBM Bob Workshop 挑戰</p>
+      <p class="company"></p>
+      <div class="challenge-badge">難度：⭐⭐⭐⭐ | ⏱️ 時長：2 小時</div>
+    </header>
+
+    <!-- 專案資源 -->
+    <div class="section">
+      <h2>📦 專案資源</h2>
+      <div class="success-box">
+        <h4>🔗 GitHub Repository</h4>
+        <p style="margin-bottom: 12px;">Sample Application 程式碼位於：</p>
+        <pre style="background: #2d2d2d; color: #f8f8f2; padding: 16px; border-radius: 6px; overflow-x: auto; font-family: 'IBM Plex Mono', monospace; font-size: 13px; margin: 12px 0;">https://github.com/icewater30012/bob-workshop.git</pre>
+        <p style="margin-top: 12px; font-size: 0.9rem; color: var(--muted);">
+          專案路徑：<code>topics/journey-analysis/</code>
+        </p>
+        
+        <div style="margin-top: 16px; padding: 12px; background: rgba(255, 193, 7, 0.1); border-radius: 6px; border-left: 3px solid #ffc107;">
+          <p style="margin-bottom: 8px;"><strong>⚠️ 團隊協作設定（重要）</strong></p>
+          <ol style="margin-left: 24px; font-size: 0.9rem;">
+            <li style="margin-bottom: 8px;"><strong>指定一位成員</strong> Fork 此 Repository 到自己的 GitHub 帳號</li>
+            <li style="margin-bottom: 8px;">其他團隊成員 <strong>Clone 該成員的 Fork</strong>（不是原始 Repo）</li>
+            <li style="margin-bottom: 8px;">所有人以 <strong>同一個 Repository</strong> 為基礎進行開發</li>
+            <li style="margin-bottom: 8px;">建議各自開 <strong>feature branch</strong> 進行開發（如 <code>feature/popular-routes</code>）</li>
+            <li>最後由 <strong>同一人負責整合</strong> 所有 branch 到 main</li>
+          </ol>
+          <p style="margin-top: 12px; font-size: 0.85rem; color: var(--muted);">
+            💡 這樣可以模擬真實的團隊協作流程，並避免多個 Fork 造成的整合問題
+          </p>
+        </div>
+      </div>
+
+      <div class="warning-box" style="margin-top: 24px;">
+        <h4>💡 開發流程建議</h4>
+        <p style="margin-bottom: 16px;">建議學員採用以下開發流程，充分運用 Bob 的 Plan 與 Code 模式：</p>
+        
+        <div style="margin-left: 20px;">
+          <p style="margin-bottom: 12px;"><strong>1️⃣ 規劃階段 (Plan 模式)</strong></p>
+          <ul style="margin-left: 24px; margin-bottom: 16px;">
+            <li>使用 <strong>Plan 模式</strong>分析需求與設計架構</li>
+            <li>讓 Bob 協助規劃 Entity、Repository、Service、Controller 的設計</li>
+            <li>確認資料庫結構與 API 端點設計</li>
+            <li>產出開發計畫與實作步驟</li>
+            <li>可請 Bob 產出系統架構圖、資料流程圖、ER 圖等視覺化文件</li>
+          </ul>
+
+          <p style="margin-bottom: 12px;"><strong>2️⃣ 開發階段 (Code 模式)</strong></p>
+          <ul style="margin-left: 24px; margin-bottom: 16px;">
+            <li>切換至 <strong>Code 模式</strong>進行實際開發</li>
+            <li>依照規劃逐步實作各層級元件</li>
+            <li>使用 Bob 的程式碼生成與重構功能</li>
+            <li>執行測試並驗證功能</li>
+          </ul>
+
+          <p style="margin-bottom: 12px;"><strong>3️⃣ 模式切換技巧</strong></p>
+          <ul style="margin-left: 24px;">
+            <li>遇到設計問題時，切回 Plan 模式重新規劃</li>
+            <li>需要程式碼實作時，使用 Code 模式</li>
+            <li>善用兩種模式的優勢，提升開發效率</li>
+          </ul>
+        </div>
+
+        <p style="margin-top: 16px; padding: 12px; background: rgba(0, 102, 204, 0.05); border-radius: 6px; border-left: 3px solid var(--accent);">
+          <strong>💡 提示</strong>：Plan 模式適合思考與設計，Code 模式適合實作與除錯。靈活切換可以讓開發更有條理！
+        </p>
+      </div>
+    </div>
+
+    <!-- 挑戰概述 -->
+    <div class="section">
+      <h2>🎯 挑戰概述</h2>
+      <div class="challenge-box">
+        <h3>組別任務</h3>
+        <p>你/妳們是開發工程師，公司需要為現有的交通卡交易系統新增<strong>旅程使用分析功能</strong>，以了解乘客行為、優化班次安排等其他功能，並支援營運決策。</p>
+        <p>你們將使用 <strong>IBM Bob</strong> 作為 AI 開發助手，從現有的 Sample Code 基礎上，共同快速實作這個數據導向的分析功能。</p>
+      </div>
+
+      <div class="warning-box">
+        <h4>⚠️ 重要提醒</h4>
+        <p>這是一個<strong>開放式挑戰</strong>，我們不會提供詳細的實作步驟。你需要：</p>
+        <ul>
+          <li>自行分析需求並設計解決方案</li>
+          <li>善用 IBM Bob 的各種功能來加速開發</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 學習目標 -->
+    <div class="section">
+      <h2>🎓 學習目標</h2>
+      <p style="margin-bottom: 20px;">完成本挑戰後，你/妳將能夠：</p>
+      <div class="objectives-list">
+        <ul>
+          <li>使用 Bob 從現有程式碼快速新增功能</li>
+          <li>建立自訂 Slash Command 提升開發效率</li>
+          <li>撰寫專案 Rules 確保程式碼品質</li>
+          <li>建立 AGENTS.md 指導 AI 助手</li>
+          <li>實作複雜的資料聚合與統計分析</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 功能需求 -->
+    <div class="section">
+      <h2>📋 功能需求</h2>
+      <p style="margin-bottom: 20px;">各分組實作以下核心功能：</p>
+      
+      <div class="requirements-grid">
+        <div class="requirement-card">
+          <h4>📊 模組 1：熱門路線分析</h4>
+          <p style="margin-bottom: 12px; color: var(--muted); font-size: 0.95rem;">
+            <strong>功能說明</strong>：統計最多人搭乘的起迄站組合 Top 10
+          </p>
+          <ul>
+            <li>✅ 統計各起迄站組合的搭乘次數</li>
+            <li>✅ 計算各路線的總收入</li>
+            <li>✅ 依搭乘次數排序，取前 10 名</li>
+          </ul>
+          <div style="margin-top: 16px; padding: 12px; background: rgba(0, 102, 204, 0.05); border-radius: 6px; border-left: 3px solid var(--accent);">
+            <p style="font-size: 0.9rem; margin-bottom: 8px;"><strong>要實作的功能</strong>：</p>
+            <ul style="font-size: 0.9rem; color: var(--muted);">
+              <li>建立 <code>Journey</code> Entity（旅程記錄）</li>
+              <li>建立 <code>JourneyRepository</code> 與查詢方法</li>
+              <li>建立 <code>JourneyService</code> 實作分析邏輯</li>
+              <li>建立 <code>JourneyController</code> 提供 API</li>
+              <li>API 端點：<code>GET /api/journeys/popular-routes</code></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="requirement-card">
+          <h4>⏰ 模組 2：尖峰時段分析</h4>
+          <p style="margin-bottom: 12px; color: var(--muted); font-size: 0.95rem;">
+            <strong>功能說明</strong>：統計各時段（0-23 小時）的進站人數
+          </p>
+          <ul>
+            <li>✅ 依小時（0-23）統計進站人數</li>
+            <li>✅ 識別尖峰時段（人數最多的時段）</li>
+            <li>✅ 回傳完整的 24 小時分布資料</li>
+          </ul>
+          <div style="margin-top: 16px; padding: 12px; background: rgba(0, 168, 150, 0.05); border-radius: 6px; border-left: 3px solid var(--accent2);">
+            <p style="font-size: 0.9rem; margin-bottom: 8px;"><strong>要實作的功能</strong>：</p>
+            <ul style="font-size: 0.9rem; color: var(--muted);">
+              <li>在 <code>JourneyRepository</code> 新增時段查詢方法</li>
+              <li>在 <code>JourneyService</code> 實作時段分析邏輯</li>
+              <li>在 <code>JourneyController</code> 新增 API 端點</li>
+              <li>API 端點：<code>GET /api/journeys/peak-hours</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 現有系統 -->
+    <div class="section">
+      <h2>✅ 現有系統架構</h2>
+      <p style="margin-bottom: 20px;">Sample Code 已提供以下基礎功能：</p>
+      
+      <div class="evaluation-table">
+        <table>
+          <thead>
+            <tr>
+              <th>元件</th>
+              <th>說明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Card Entity</strong></td>
+              <td>一卡通資料（卡號、餘額、類型）</td>
+            </tr>
+            <tr>
+              <td><strong>Station Entity</strong></td>
+              <td>車站資料（站名、路線）</td>
+            </tr>
+            <tr>
+              <td><strong>Transaction Entity</strong></td>
+              <td>交易記錄（進站、出站記錄）</td>
+            </tr>
+            <tr>
+              <td><strong>Repository 層</strong></td>
+              <td>基本的資料存取介面</td>
+            </tr>
+            <tr>
+              <td><strong>H2 資料庫</strong></td>
+              <td>記憶體資料庫，含測試資料</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 待實作功能 -->
+    <div class="section">
+      <h2>🔌 待實作功能</h2>
+      <p style="margin-bottom: 20px;">你需要實作以下核心元件：</p>
+      
+      <div class="evaluation-table">
+        <table>
+          <thead>
+            <tr>
+              <th>元件</th>
+              <th>說明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Journey Entity</strong></td>
+              <td>旅程記錄（起迄站、時間、票價、時長）</td>
+            </tr>
+            <tr>
+              <td><strong>JourneyRepository</strong></td>
+              <td>旅程資料存取介面（含複雜查詢）</td>
+            </tr>
+            <tr>
+              <td><strong>JourneyService</strong></td>
+              <td>旅程分析業務邏輯</td>
+            </tr>
+            <tr>
+              <td><strong>JourneyController</strong></td>
+              <td>RESTful API 端點</td>
+            </tr>
+            <tr>
+              <td><strong>DTO 類別</strong></td>
+              <td>API 回應資料結構</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="warning-box" style="margin-top: 24px;">
+        <h4>💡 實作建議</h4>
+        
+        <p style="margin-bottom: 16px;"><strong>建議實作順序</strong></p>
+        <ol style="margin-left: 24px; margin-bottom: 16px;">
+          <li style="margin-bottom: 12px;"><strong>分析現有系統</strong>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+              <li>檢視現有的 Card、Station、Transaction Entity</li>
+              <li>了解資料庫結構與關聯</li>
+              <li>查看 data.sql 中的測試資料</li>
+            </ul>
+          </li>
+          
+          <li style="margin-bottom: 12px;"><strong>設計 Journey Entity</strong>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+              <li>定義旅程記錄所需的欄位</li>
+              <li>建立與 Station 的關聯</li>
+              <li>考慮如何儲存時間與金額資料</li>
+            </ul>
+          </li>
+          
+          <li style="margin-bottom: 12px;"><strong>建立 Repository 層</strong>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+              <li>建立 JourneyRepository 介面</li>
+              <li>設計查詢方法來支援兩個分析功能</li>
+              <li>考慮使用聚合查詢（分組、計數、排序）</li>
+            </ul>
+          </li>
+          
+          <li style="margin-bottom: 12px;"><strong>實作 Service 層</strong>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+              <li>建立 JourneyService 類別</li>
+              <li>實作熱門路線分析邏輯</li>
+              <li>實作尖峰時段分析邏輯</li>
+              <li>處理資料轉換與業務規則</li>
+            </ul>
+          </li>
+          
+          <li style="margin-bottom: 12px;"><strong>建立 Controller 層</strong>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+              <li>建立 JourneyController 類別</li>
+              <li>實作兩個 API 端點</li>
+              <li>定義適當的回應格式</li>
+            </ul>
+          </li>
+          
+          <li style="margin-bottom: 12px;"><strong>測試與驗證</strong>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+              <li>撰寫單元測試</li>
+              <li>使用 Postman 或瀏覽器測試 API</li>
+              <li>驗證資料正確性</li>
+            </ul>
+          </li>
+        </ol>
+        
+        <p style="margin-top: 16px;"><strong>技術考量重點</strong>：</p>
+        <ul style="margin-left: 24px;">
+          <li>如何有效地進行資料分組與統計？</li>
+          <li>如何從時間欄位提取小時資訊？</li>
+          <li>如何設計清晰的 API 回應結構？</li>
+          <li>如何確保查詢效能？</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bob 功能產出 -->
+    <div class="section">
+      <h2>🤖 產出要求</h2>
+      <p style="margin-bottom: 20px;">除了功能實作，你還需要建立以下 Bob 相關文件：</p>
+      
+      <div class="deliverables">
+        <h4>必要產出</h4>
+        <ul>
+          <li><strong>自訂 Slash Command</strong>：建立 <code>/security-scan</code> 指令
+            <br><span style="font-size: 0.9rem; color: var(--muted);">用途：讓 Bob 執行程式碼安全掃描，檢查 SQL Injection、輸入驗證、敏感資料處理等安全問題</span>
+          </li>
+          <li><strong>編碼規範</strong>：撰寫 <code>.bob/rules/coding-standards.md</code></li>
+          <li><strong>安全規範</strong>：撰寫 <code>.bob/rules/security-rules.md</code></li>
+          <li><strong>AI 指引</strong>：建立 <code>.bob/AGENTS.md</code></li>
+            <br><span style="font-size: 0.9rem; color: var(--muted);">主題：捷運系統開發最佳實踐（資料驗證、查詢優化、安全處理）</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="success-box">
+        <h4>💡 提示</h4>
+        <p>這些文件是幫助你更有效使用 Bob 的關鍵工具。Slash Command 讓 Bob 執行特定的程式碼安全檢查。</p>
+      </div>
+    </div>
+
+    <!-- 啟動應用程式 -->
+    <div class="section">
+      <h2>🚀 啟動應用程式</h2>
+      <p style="margin-bottom: 20px;">按照以下步驟啟動 Spring Boot 應用程式：</p>
+      
+      <div class="challenge-box">
+        <h3>步驟 1：進入專案目錄</h3>
+        <pre style="background: #2d2d2d; color: #f8f8f2; padding: 16px; border-radius: 6px; overflow-x: auto; font-family: 'IBM Plex Mono', monospace; font-size: 13px; margin: 12px 0;">cd topics/journey-analysis</pre>
+        
+        <h3 style="margin-top: 24px;">步驟 2：啟動應用程式</h3>
+        <p style="margin-bottom: 12px;">選擇以下任一方式：</p>
+        
+        <p style="margin-top: 16px;"><strong>方式 A：使用 Maven Wrapper（推薦）</strong></p>
+        <pre style="background: #2d2d2d; color: #f8f8f2; padding: 16px; border-radius: 6px; overflow-x: auto; font-family: 'IBM Plex Mono', monospace; font-size: 13px; margin: 12px 0;">./mvnw spring-boot:run</pre>
+        
+        <p style="margin-top: 16px;"><strong>方式 B：使用已安裝的 Maven</strong></p>
+        <pre style="background: #2d2d2d; color: #f8f8f2; padding: 16px; border-radius: 6px; overflow-x: auto; font-family: 'IBM Plex Mono', monospace; font-size: 13px; margin: 12px 0;">mvn spring-boot:run</pre>
+        
+        <h3 style="margin-top: 24px;">步驟 3：驗證啟動成功</h3>
+        <p style="margin-bottom: 12px;">看到以下訊息表示啟動成功：</p>
+        <pre style="background: #2d2d2d; color: #50fa7b; padding: 16px; border-radius: 6px; overflow-x: auto; font-family: 'IBM Plex Mono', monospace; font-size: 13px; margin: 12px 0;">Started JourneyAnalysisApplication in X.XXX seconds</pre>
+        
+        <h3 style="margin-top: 24px;">步驟 4：存取應用程式</h3>
+        <ul style="margin-left: 24px; margin-top: 12px;">
+          <li><strong>Web UI</strong>: <a href="http://localhost:8080" target="_blank" style="color: var(--accent);">http://localhost:8080</a></li>
+          <li><strong>H2 資料庫控制台</strong>: <a href="http://localhost:8080/h2-console" target="_blank" style="color: var(--accent);">http://localhost:8080/h2-console</a>
+            <ul style="margin-left: 24px; margin-top: 8px; font-size: 0.9rem; color: var(--muted);">
+              <li>JDBC URL: <code>jdbc:h2:mem:metro_db</code></li>
+              <li>Username: <code>sa</code></li>
+              <li>Password: (留空)</li>
+            </ul>
+          </li>
+          <li><strong>API 文件</strong>: <a href="http://localhost:8080/swagger-ui.html" target="_blank" style="color: var(--accent);">http://localhost:8080/swagger-ui.html</a></li>
+        </ul>
+      </div>
+      
+      <div class="warning-box" style="margin-top: 24px;">
+        <h4>⚠️ 常見問題</h4>
+        <p><strong>Q: Port 8080 已被佔用？</strong></p>
+        <p style="margin-left: 24px; margin-bottom: 12px;">A: 修改 <code>src/main/resources/application.yml</code> 中的 <code>server.port</code></p>
+        
+        <p><strong>Q: Maven 下載依賴很慢？</strong></p>
+        <p style="margin-left: 24px; margin-bottom: 12px;">A: 設定 Maven 使用國內鏡像源</p>
+        
+        <p><strong>Q: 如何停止應用程式？</strong></p>
+        <p style="margin-left: 24px;">A: 在終端機按 <code>Ctrl + C</code></p>
+      </div>
+    </div>
+
+    <!-- 時間分配 -->
+    <div class="section">
+      <h2>⏱️ 建議時間分配（4 人團隊協作）</h2>
+      <p style="margin-bottom: 20px;">本 Workshop 採用 <strong>3 人開發 + 1 人簡報</strong> 的協作模式：</p>
+      
+      <div class="warning-box" style="margin-bottom: 24px;">
+        <h4>👥 團隊分工</h4>
+        <ul style="margin-left: 24px;">
+          <li><strong>Person A</strong>：熱門路線分析（25 分鐘）</li>
+          <li><strong>Person B</strong>：尖峰時段分析或自訂功能（25 分鐘）</li>
+          <li><strong>Person C</strong>：前端整合 + Bob 進階功能（30 分鐘）</li>
+          <li><strong>Person D</strong>：技術簡報製作（全程，使用 frontend-slides SKILL）</li>
+        </ul>
+      </div>
+
+      <div class="time-allocation">
+        <div class="time-block">
+          <div class="time">0-20分</div>
+          <div class="label">環境設定<br>需求分析<br>團隊討論</div>
+        </div>
+        <div class="time-block">
+          <div class="time">20-50分</div>
+          <div class="label">Person A & B<br>並行開發<br>路線+時段分析</div>
+        </div>
+        <div class="time-block">
+          <div class="time">50-70分</div>
+          <div class="label">Person C<br>前端整合完成<br>提供截圖給 D</div>
+        </div>
+        <div class="time-block">
+          <div class="time">70-100分</div>
+          <div class="label">全員協作<br>Bob 配置建立<br>A/B/C 分工撰寫</div>
+        </div>
+        <div class="time-block">
+          <div class="time">100-120分</div>
+          <div class="label">全員 Review<br>簡報潤飾<br>最終檢查</div>
+        </div>
+      </div>
+
+      <div class="success-box" style="margin-top: 24px;">
+        <h4>🔄 關鍵同步點與分工</h4>
+        <ul style="margin-left: 24px;">
+          <li><strong>20-50 分鐘</strong>：Person A & B 並行開發（無依賴關係，可同時進行）</li>
+          <li><strong>50 分鐘</strong>：Person A/B 完成後，Person C 開始整合</li>
+          <li><strong>70 分鐘</strong>：Person C 整合完成，提供截圖給 Person D</li>
+          <li><strong>70-100 分鐘</strong>：全員協作建立 Bob 配置
+            <ul style="margin-left: 20px; margin-top: 8px; font-size: 0.9rem;">
+              <li>Person A：撰寫 AGENTS.md（記錄路線分析的設計決策）</li>
+              <li>Person B：撰寫 coding-standards.md（提取程式碼規範）</li>
+              <li>Person C：建立 Slash Command + security-rules.md</li>
+              <li>Person D：根據開發成果更新簡報內容</li>
+            </ul>
+          </li>
+          <li><strong>100 分鐘</strong>：全員 Review 簡報內容與 Bob 配置</li>
+        </ul>
+        <p style="margin-top: 12px; font-size: 0.9rem; color: var(--muted);">
+          💡 <strong>提示</strong>：70-100 分鐘是全員協作的黃金時段，每個人根據自己的開發經驗貢獻 Bob 配置內容，確保文件反映實際開發實踐。
+        </p>
+      </div>
+    </div>
+
+    <!-- 完成檢查清單 -->
+    <div class="section">
+      <h2>✅ 完成檢查清單</h2>
+      <div class="evaluation-table">
+        <table>
+          <thead>
+            <tr>
+              <th>檢查項目</th>
+              <th>檢查重點</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>功能完整性</strong></td>
+              <td>
+                • Journey Entity 正確實作<br>
+                • 2 個分析功能正確運作<br>
+                • API 端點正常運作<br>
+                • 測試覆蓋充足
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Bob 功能應用</strong></td>
+              <td>
+                • 自訂 Slash Command 可用<br>
+                • Rules 完整且實用<br>
+                • AGENTS.md 清晰明確<br>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>程式碼品質</strong></td>
+              <td>
+                • 符合編碼規範<br>
+                • 查詢效能優化<br>
+                • 適當的錯誤處理<br>
+                • 良好的程式碼結構
+              </td>
+            </tr>
+            <tr>
+              <td><strong>文件與測試</strong></td>
+              <td>
+                • API 文件完整<br>
+                • 測試案例充足<br>
+                • 註解清楚易懂
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 技術環境 -->
+    <div class="section">
+      <h2>🛠️ 技術環境</h2>
+      <div class="requirements-grid">
+        <div class="requirement-card">
+          <h4>📦 技術棧</h4>
+          <ul>
+            <li>Spring Boot 3.5</li>
+            <li>H2 記憶體資料庫</li>
+            <li>JPA/Hibernate</li>
+            <li>JUnit 5 + Mockito</li>
+          </ul>
+        </div>
+
+        <div class="requirement-card">
+          <h4>🎯 Sample Code</h4>
+          <ul>
+            <li>Card、Station、Transaction 已提供</li>
+            <li>基本 Repository 已建立</li>
+            <li>測試資料已準備</li>
+            <li>需新增 Journey 分析功能</li>
+          </ul>
+        </div>
+
+        <div class="requirement-card">
+          <h4>🔧 開發工具</h4>
+          <ul>
+            <li>IBM Bob IDE</li>
+            <li>Git 版本控制</li>
+            <li>Maven 建置工具</li>
+            <li>Postman/curl 測試</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <footer>
+      <h2>🚀 準備好接受挑戰了嗎？</h2>
+      <p>這是一個數據導向的實戰挑戰</p>
+      <p>發揮你的創意，善用 IBM Bob，展現你的資料分析實力！</p>
+      <a href="#" class="cta-button">開始挑戰 →</a>
+      
+      <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);">
+        <p style="font-size: 0.9rem; color: var(--muted);">
+          💡 記住：沒有標準答案，只要達成學習目標並完成檢查清單即可！
+        </p>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

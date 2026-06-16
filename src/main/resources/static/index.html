@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>交通卡使用分析系統 - METRO</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎟️ 交通卡使用分析系統</h1>
+      <p class="subtitle">METRO Journey Analysis Dashboard</p>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        系統運行中
+      </div>
+      <!-- Workshop 提示訊息 -->
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h3 style="margin: 0 0 12px 0; font-size: 1.1rem;">💡 Workshop 練習專案</h3>
+        <p style="margin: 0; line-height: 1.6; opacity: 0.95;">
+          此為 IBM Bob Workshop 的練習專案。基本功能已提供，學員需實作：<br>
+          📊 <strong>熱門路線分析</strong>（統計起迄站組合 Top 10）<br>
+          ⏰ <strong>尖峰時段分析</strong>（24 小時進站分布）<br>
+          請依照 <code>journey-analysis.html</code> 的指引完成實作。
+        </p>
+      </div>
+
+    </header>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🧾</div>
+        <div class="stat-content">
+          <div class="stat-label">總旅程數</div>
+          <div class="stat-value" id="totalJourneys">-</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-content">
+          <div class="stat-label">總票價收入</div>
+          <div class="stat-value" id="totalRevenue">-</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-content">
+          <div class="stat-label">最熱門路線</div>
+          <div class="stat-value text-small" id="busiestRoute">-</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">⏰</div>
+        <div class="stat-content">
+          <div class="stat-label">尖峰時段</div>
+          <div class="stat-value" id="peakHourRange">-</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔍 旅程分析查詢</h2>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="loadAllJourneys()">全部旅程</button>
+        <button class="filter-btn" onclick="loadPopularRoutes()">熱門路線 Top 10</button>
+        <button class="filter-btn" onclick="loadPeakHours()">24 小時分布</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead id="tableHead">
+            <tr>
+              <th>旅程ID</th>
+              <th>卡號</th>
+              <th>起站</th>
+              <th>迄站</th>
+              <th>進站時間</th>
+              <th>出站時間</th>
+              <th>票價</th>
+              <th>時長(分)</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="8" class="loading">載入中...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📋 Journey API</h2>
+      <div class="api-list">
+        <h3>✅ 已實作功能</h3>
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>API 端點</th>
+              <th>方法</th>
+              <th>功能說明</th>
+              <th>使用場景</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/api/journeys</code></td>
+              <td>GET</td>
+              <td>查詢所有旅程</td>
+              <td>旅程清單展示</td>
+            </tr>
+            <tr>
+              <td><code>/api/journeys/statistics</code></td>
+              <td>GET</td>
+              <td>查詢儀表板統計</td>
+              <td>首頁統計卡片</td>
+            </tr>
+            <tr>
+              <td><code>/api/journeys/popular-routes</code></td>
+              <td>GET</td>
+              <td>熱門路線 Top 10</td>
+              <td>營運決策分析</td>
+            </tr>
+            <tr>
+              <td><code>/api/journeys/peak-hours</code></td>
+              <td>GET</td>
+              <td>尖峰時段分析</td>
+              <td>班次規劃分析</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section workshop-hint">
+      <h2>🎯 Workshop 挑戰：2 個核心分析模組</h2>
+      <div class="challenge-box">
+        <h3>模組 1：熱門路線分析 📊</h3>
+        <p><strong>功能說明</strong>：統計最多人搭乘的起迄站組合 Top 10</p>
+        <ul>
+          <li>✅ 統計各起迄站組合的搭乘次數</li>
+          <li>✅ 計算各路線總收入</li>
+          <li>✅ 依搭乘次數排序</li>
+        </ul>
+
+        <h3>模組 2：尖峰時段分析 ⏰</h3>
+        <p><strong>功能說明</strong>：統計各時段（0-23）進站人數分布</p>
+        <ul>
+          <li>✅ 回傳 24 小時完整分布</li>
+          <li>✅ 識別人數最多時段</li>
+          <li>✅ 支援班次與人力規劃</li>
+        </ul>
+
+        <h3>待延伸 API 端點</h3>
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>API 端點</th>
+              <th>方法</th>
+              <th>功能說明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/api/journeys</code></td>
+              <td>POST</td>
+              <td>新增旅程資料</td>
+            </tr>
+            <tr>
+              <td><code>/api/journeys/station/{stationId}</code></td>
+              <td>GET</td>
+              <td>依車站分析旅程</td>
+            </tr>
+            <tr>
+              <td><code>/api/journeys/card/{cardId}</code></td>
+              <td>GET</td>
+              <td>依卡片查詢旅程歷史</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2026 METRO | IBM Bob Workshop Sample Application</p>
+      <p class="footer-links">
+        <a href="/h2-console" target="_blank">H2 資料庫控制台</a> |
+        <a href="/swagger-ui.html" target="_blank">API 文件</a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
