@@ -92,7 +92,11 @@ async function loadPeakHours() {
   document.getElementById('tableHead').innerHTML = `
     <tr>
       <th>時段</th>
+      <th>時間範圍</th>
       <th>進站人數</th>
+      <th>擁擠程度</th>
+      <th>尖峰標記</th>
+      <th>視覺化</th>
     </tr>
   `;
   try {
@@ -101,19 +105,58 @@ async function loadPeakHours() {
     const tbody = document.getElementById('tableBody');
 
     if (hours.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="2" class="loading">查無資料</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="loading">查無資料</td></tr>';
       return;
     }
 
-    tbody.innerHTML = hours.map(item => `
-      <tr>
-        <td>${String(item.hour).padStart(2, '0')}:00 - ${String(item.hour).padStart(2, '0')}:59</td>
-        <td>${item.entryCount}</td>
-      </tr>
-    `).join('');
+    // 找出最大進站人數用於計算百分比
+    const maxCount = Math.max(...hours.map(h => h.entryCount));
+
+    tbody.innerHTML = hours.map(item => {
+      const percentage = maxCount > 0 ? (item.entryCount / maxCount * 100) : 0;
+      const levelClass = getLevelClass(item.level);
+      const levelText = getLevelText(item.level);
+      const peakBadge = item.peak ? '<span class="peak-badge">🔥 尖峰</span>' : '';
+      
+      return `
+        <tr class="${item.peak ? 'peak-row' : ''}">
+          <td><strong>${String(item.hour).padStart(2, '0')}:00</strong></td>
+          <td>${item.timeRange}</td>
+          <td class="count-cell">${item.entryCount}</td>
+          <td><span class="level-badge ${levelClass}">${levelText}</span></td>
+          <td>${peakBadge}</td>
+          <td>
+            <div class="bar-container">
+              <div class="bar ${levelClass}" style="width: ${percentage}%"></div>
+              <span class="bar-label">${percentage.toFixed(0)}%</span>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
   } catch (error) {
-    showError(2, '無法載入尖峰時段');
+    showError(6, '無法載入尖峰時段');
   }
+}
+
+function getLevelClass(level) {
+  const classes = {
+    'HIGH': 'level-high',
+    'MEDIUM': 'level-medium',
+    'LOW': 'level-low',
+    'NONE': 'level-none'
+  };
+  return classes[level] || 'level-none';
+}
+
+function getLevelText(level) {
+  const texts = {
+    'HIGH': '高度擁擠',
+    'MEDIUM': '中度擁擠',
+    'LOW': '低度擁擠',
+    'NONE': '無資料'
+  };
+  return texts[level] || '未知';
 }
 
 function setJourneyTableHeader() {
