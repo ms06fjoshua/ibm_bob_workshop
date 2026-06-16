@@ -6,6 +6,7 @@
   <title>交通卡使用分析系統 - METRO</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -63,8 +64,27 @@
       </div>
     </div>
 
+    <!-- 圖表視覺化區塊 -->
+    <div class="charts-grid">
+      <div class="section chart-section">
+        <h2>📊 熱門路線分析 Top 10</h2>
+        <p class="chart-description">統計最多人搭乘的起迄站組合，協助營運決策與路線規劃</p>
+        <div class="chart-container">
+          <canvas id="popularRoutesChart"></canvas>
+        </div>
+      </div>
+
+      <div class="section chart-section">
+        <h2>⏰ 尖峰時段分析</h2>
+        <p class="chart-description">24 小時進站人數分布，支援班次與人力資源規劃</p>
+        <div class="chart-container">
+          <canvas id="peakHoursChart"></canvas>
+        </div>
+      </div>
+    </div>
+
     <div class="section">
-      <h2>🔍 旅程分析查詢</h2>
+      <h2> 旅程分析查詢</h2>
 
       <div class="filter-bar">
         <button class="filter-btn active" onclick="loadAllJourneys()">全部旅程</button>

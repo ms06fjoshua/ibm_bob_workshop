@@ -267,6 +267,86 @@ footer {
   text-decoration: underline;
 }
 
+/* 圖表區塊樣式 */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.chart-section {
+  background: var(--surface);
+  padding: 30px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.chart-section h2 {
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chart-description {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.chart-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  height: 400px;
+  position: relative;
+}
+
+.chart-container canvas {
+  max-height: 100%;
+}
+
+/* 響應式設計 */
+@media (max-width: 1200px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .chart-container {
+    height: 300px;
+    padding: 15px;
+  }
+  
+  .chart-section {
+    padding: 20px;
+  }
+  
+  .chart-section h2 {
+    font-size: 16px;
+  }
+  
+  .chart-description {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-container {
+    height: 250px;
+    padding: 10px;
+  }
 /* 尖峰時段視覺化樣式 */
 .peak-row {
   background: rgba(255, 140, 0, 0.08);

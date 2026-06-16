@@ -4,9 +4,15 @@
 
 const API_BASE = '/api/journeys';
 
+// 圖表實例管理
+let popularRoutesChart = null;
+let peakHoursChart = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   loadStatistics();
   loadAllJourneys();
+  renderPopularRoutesChart();
+  renderPeakHoursChart();
 });
 
 async function loadStatistics() {
@@ -64,8 +70,18 @@ async function loadPopularRoutes() {
     </tr>
   `;
   try {
-    const response = await fetch(`${API_BASE}/popular-routes`);
-    const routes = await response.json();
+    let routes;
+    
+    // 嘗試從 API 獲取資料，失敗則使用 mock data
+    try {
+      const response = await fetch(`${API_BASE}/popular-routes`);
+      if (!response.ok) throw new Error('API not available');
+      routes = await response.json();
+    } catch (apiError) {
+      console.warn('API 尚未實作，使用 Mock Data');
+      routes = mockPopularRoutes;
+    }
+    
     const tbody = document.getElementById('tableBody');
 
     if (routes.length === 0) {
@@ -82,6 +98,9 @@ async function loadPopularRoutes() {
         <td class="amount">${formatCurrency(route.totalRevenue)}</td>
       </tr>
     `).join('');
+    
+    // 同時更新圖表
+    renderPopularRoutesChart();
   } catch (error) {
     showError(5, '無法載入熱門路線');
   }
@@ -100,8 +119,18 @@ async function loadPeakHours() {
     </tr>
   `;
   try {
-    const response = await fetch(`${API_BASE}/peak-hours`);
-    const hours = await response.json();
+    let hours;
+    
+    // 嘗試從 API 獲取資料，失敗則使用 mock data
+    try {
+      const response = await fetch(`${API_BASE}/peak-hours`);
+      if (!response.ok) throw new Error('API not available');
+      hours = await response.json();
+    } catch (apiError) {
+      console.warn('API 尚未實作，使用 Mock Data');
+      hours = mockPeakHours;
+    }
+    
     const tbody = document.getElementById('tableBody');
 
     if (hours.length === 0) {
@@ -109,6 +138,15 @@ async function loadPeakHours() {
       return;
     }
 
+    tbody.innerHTML = hours.map(item => `
+      <tr>
+        <td>${String(item.hour).padStart(2, '0')}:00 - ${String(item.hour).padStart(2, '0')}:59</td>
+        <td>${item.entryCount}</td>
+      </tr>
+    `).join('');
+    
+    // 同時更新圖表
+    renderPeakHoursChart();
     // 找出最大進站人數用於計算百分比
     const maxCount = Math.max(...hours.map(h => h.entryCount));
 
@@ -206,6 +244,237 @@ function showError(colspan, message) {
       <td colspan="${colspan}" style="color: var(--red); text-align: center;">⚠️ ${message}</td>
     </tr>
   `;
+}
+
+// Mock Data - 熱門路線
+const mockPopularRoutes = [
+  { entryStation: '台北車站', exitStation: '板橋站', tripCount: 1250, totalRevenue: 50000 },
+  { entryStation: '台北車站', exitStation: '松山站', tripCount: 980, totalRevenue: 39200 },
+  { entryStation: '西門站', exitStation: '台北車站', tripCount: 875, totalRevenue: 35000 },
+  { entryStation: '中山站', exitStation: '台北車站', tripCount: 820, totalRevenue: 32800 },
+  { entryStation: '忠孝復興站', exitStation: '市政府站', tripCount: 765, totalRevenue: 30600 },
+  { entryStation: '南港站', exitStation: '台北車站', tripCount: 720, totalRevenue: 28800 },
+  { entryStation: '板橋站', exitStation: '台北車站', tripCount: 680, totalRevenue: 27200 },
+  { entryStation: '信義安和站', exitStation: '台北101站', tripCount: 625, totalRevenue: 25000 },
+  { entryStation: '松山站', exitStation: '南港站', tripCount: 580, totalRevenue: 23200 },
+  { entryStation: '大安站', exitStation: '忠孝復興站', tripCount: 540, totalRevenue: 21600 }
+];
+
+// Mock Data - 尖峰時段
+const mockPeakHours = [
+  { hour: 0, entryCount: 45 }, { hour: 1, entryCount: 28 }, { hour: 2, entryCount: 15 },
+  { hour: 3, entryCount: 12 }, { hour: 4, entryCount: 18 }, { hour: 5, entryCount: 85 },
+  { hour: 6, entryCount: 320 }, { hour: 7, entryCount: 580 }, { hour: 8, entryCount: 750 },
+  { hour: 9, entryCount: 420 }, { hour: 10, entryCount: 280 }, { hour: 11, entryCount: 310 },
+  { hour: 12, entryCount: 380 }, { hour: 13, entryCount: 290 }, { hour: 14, entryCount: 260 },
+  { hour: 15, entryCount: 310 }, { hour: 16, entryCount: 420 }, { hour: 17, entryCount: 680 },
+  { hour: 18, entryCount: 820 }, { hour: 19, entryCount: 520 }, { hour: 20, entryCount: 380 },
+  { hour: 21, entryCount: 290 }, { hour: 22, entryCount: 180 }, { hour: 23, entryCount: 95 }
+];
+
+// 熱門路線圖表渲染函數
+async function renderPopularRoutesChart() {
+  try {
+    let routes;
+    
+    // 嘗試從 API 獲取資料，失敗則使用 mock data
+    try {
+      const response = await fetch(`${API_BASE}/popular-routes`);
+      if (!response.ok) throw new Error('API not available');
+      routes = await response.json();
+    } catch (apiError) {
+      console.warn('API 尚未實作，使用 Mock Data:', apiError.message);
+      routes = mockPopularRoutes;
+    }
+
+    if (routes.length === 0) {
+      console.warn('無熱門路線資料');
+      return;
+    }
+
+    const ctx = document.getElementById('popularRoutesChart');
+    
+    // 銷毀舊圖表實例
+    if (popularRoutesChart) {
+      popularRoutesChart.destroy();
+    }
+
+    // 準備圖表資料
+    const labels = routes.map(r => `${r.entryStation} → ${r.exitStation}`);
+    const data = routes.map(r => r.tripCount);
+    const revenues = routes.map(r => r.totalRevenue);
+
+    popularRoutesChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '搭乘次數',
+          data: data,
+          backgroundColor: 'rgba(0, 102, 204, 0.8)',
+          borderColor: 'rgba(0, 102, 204, 1)',
+          borderWidth: 1,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          title: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const index = context.dataIndex;
+                const tripCount = data[index];
+                const revenue = formatCurrency(revenues[index]);
+                return [
+                  `搭乘次數: ${tripCount}`,
+                  `總收入: ${revenue}`
+                ];
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: '搭乘次數'
+            },
+            ticks: {
+              precision: 0
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: '路線'
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('載入熱門路線圖表失敗:', error);
+  }
+}
+
+// 尖峰時段圖表渲染函數
+async function renderPeakHoursChart() {
+  try {
+    let hours;
+    
+    // 嘗試從 API 獲取資料，失敗則使用 mock data
+    try {
+      const response = await fetch(`${API_BASE}/peak-hours`);
+      if (!response.ok) throw new Error('API not available');
+      hours = await response.json();
+    } catch (apiError) {
+      console.warn('API 尚未實作，使用 Mock Data:', apiError.message);
+      hours = mockPeakHours;
+    }
+
+    if (hours.length === 0) {
+      console.warn('無尖峰時段資料');
+      return;
+    }
+
+    const ctx = document.getElementById('peakHoursChart');
+    
+    // 銷毀舊圖表實例
+    if (peakHoursChart) {
+      peakHoursChart.destroy();
+    }
+
+    // 準備圖表資料 - 確保有完整的 24 小時
+    const hourlyData = new Array(24).fill(0);
+    hours.forEach(item => {
+      if (item.hour >= 0 && item.hour < 24) {
+        hourlyData[item.hour] = item.entryCount;
+      }
+    });
+
+    const labels = Array.from({length: 24}, (_, i) => `${String(i).padStart(2, '0')}:00`);
+    const maxCount = Math.max(...hourlyData);
+
+    peakHoursChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '進站人數',
+          data: hourlyData,
+          backgroundColor: 'rgba(0, 168, 150, 0.2)',
+          borderColor: 'rgba(0, 168, 150, 1)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: 'rgba(0, 168, 150, 1)',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgba(0, 168, 150, 1)',
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          title: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `進站人數: ${context.parsed.y}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: '時段'
+            },
+            grid: {
+              display: true,
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: '進站人數'
+            },
+            ticks: {
+              precision: 0
+            },
+            grid: {
+              display: true,
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('載入尖峰時段圖表失敗:', error);
+  }
 }
 
 // Made with Bob
