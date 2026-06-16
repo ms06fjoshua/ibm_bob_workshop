@@ -1,6 +1,7 @@
 package com.metro.controller;
 
 import com.metro.dto.JourneyStatisticsDto;
+import com.metro.dto.PeakHourDto;
 import com.metro.model.Journey;
 import com.metro.service.JourneyService;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +33,17 @@ public class JourneyController {
         return ResponseEntity.ok(journeyService.getStatistics());
     }
 
-    // TODO: 學員實作 - 熱門路線分析 API
+    /**
+     * 取得尖峰時段分析
+     *
+     * @return 各時段進站人數統計
+     */
+    @GetMapping("/peak-hours")
+    public ResponseEntity<List<PeakHourDto>> getPeakHours() {
+        return ResponseEntity.ok(journeyService.getPeakHours());
+    }
 
-    
+    // TODO: 學員實作 - 熱門路線分析 API
 }
 
 // Made with Bob

@@ -3,7 +3,7 @@ spring:
     name: journey-analysis
 
   datasource:
-    url: jdbc:h2:mem:metro_db
+    url: jdbc:h2:mem:metro_db;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -27,9 +27,20 @@ spring:
     init:
       mode: always
       data-locations: classpath:data.sql
+      encoding: UTF-8
+
+  # HTTP 編碼設定
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 server:
   port: 8080
+  # Tomcat 編碼設定
+  tomcat:
+    uri-encoding: UTF-8
 
 logging:
   level:
